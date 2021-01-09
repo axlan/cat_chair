@@ -10,14 +10,15 @@ SENSORS = {
 }
 DB_PATH = 'sensor_data.sqlite'
 TIMEOUT = 0.5
-PERIOD = 10
+PERIOD = 60
 
 
 def read_sensor(addr):
   try:
     r = requests.get(addr, timeout=TIMEOUT)
     return r.json()
-  except requests.exceptions.Timeout:
+  except Exception as e:
+    print(e)
     return [-10, -10]
 
 def read_sensors():
