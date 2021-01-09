@@ -1,3 +1,5 @@
 .pio
 .vscode
 secrets.h
+*.sqlite
+__pycache__/
