@@ -6,11 +6,19 @@ SENSORS = {
   'window': {
     'addr': 'http://192.168.1.146/',
     'idx': 0
+  },
+  'chair_front': {
+    'addr': 'http://192.168.1.148/',
+    'idx': 1
+  },
+  'chair_back': {
+    'addr': 'http://192.168.1.148/',
+    'idx': 0
   }
 }
 DB_PATH = 'sensor_data.sqlite'
 TIMEOUT = 0.5
-PERIOD = 60
+PERIOD = 1
 
 
 def read_sensor(addr):
