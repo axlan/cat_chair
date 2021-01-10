@@ -1,6 +1,10 @@
 import sqlite3 as lite
 import requests
 import time
+import logging
+
+logger = logging.getLogger('light_monitor')
+logger.setLevel(logging.INFO)
 
 SENSORS = {
   'window': {
@@ -17,8 +21,8 @@ SENSORS = {
   }
 }
 DB_PATH = 'sensor_data.sqlite'
-TIMEOUT = 0.5
-PERIOD = 1
+TIMEOUT = 2
+PERIOD = 10
 
 
 def read_sensor(addr):
@@ -26,7 +30,7 @@ def read_sensor(addr):
     r = requests.get(addr, timeout=TIMEOUT)
     return r.json()
   except Exception as e:
-    print(e)
+    logger.warning(e)
     return [-10, -10]
 
 def read_sensors():

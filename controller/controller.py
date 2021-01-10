@@ -10,7 +10,7 @@ from monitoring import read_sensors
 logger = logging.getLogger('chair_ctrl')
 logger.setLevel(logging.INFO)
 
-SUN_ENTERS = {'hour':7} 
+SUN_ENTERS = {'hour':7}
 SUN_EXITS =  {'hour':15}
 
 PERIOD = 1
@@ -39,11 +39,11 @@ def main():
     logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
 
     total_pull = 0
-  
+
     while True:
         time.sleep(PERIOD)
         cur_time = datetime.datetime.now().time()
-        
+
         if (cur_time < datetime.time(**SUN_ENTERS)):
             logger.info('Too early')
             continue
