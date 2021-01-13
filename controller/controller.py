@@ -80,8 +80,7 @@ def main():
                 if all([ x >= 0 for x in sensor_data.values() ]):
                     break
             data_set.append(sensor_data)
-            if i < READINGS - 1:
-                time.sleep(SPACING)
+            time.sleep(SPACING)
 
         df = pd.DataFrame(data_set)
 
