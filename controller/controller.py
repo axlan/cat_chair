@@ -10,26 +10,26 @@ import pandas as pd
 from monitoring import read_sensors
 
 logger = logging.getLogger('chair_ctrl')
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
+logging.basicConfig(format='%(asctime)s-%(levelname)s: %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
 
-SUN_ENTERS = {'hour':11}
 SUN_EXITS =  {'hour':15}
 
-WINDOW_THRESHOLD = 30000
+WINDOW_THRESHOLD = 28000
 CHAIR_THRESHOLD = 0.5
 
-MAX_PULL = 10000
-PULL_INTERVAL = 1000
-PULL_DIR = 2
+MAX_PULL = 16000
+PULL_INTERVAL = 2000
+PULL_DIR = 1
 PULL_SPEED = 0.75
 CHAIR_CTRL_ADDR = '192.168.1.113'
 
 READINGS = 8
 SPACING = 1
 
-CLOUD_WAIT = 10 * 60 * 1000
+CLOUD_WAIT = 10 * 60
 
-CHAIR_CLOUD_WAIT = 2 * 60 * 1000
+CHAIR_CLOUD_WAIT = 2 * 60
 
 DRY_RUN = False
 
@@ -41,7 +41,7 @@ class State(Enum):
     IN_SUN = auto()
     # only front in sun so need to move
     MOVING = auto()
-    
+
 def pull_chair():
     if DRY_RUN:
         return True
@@ -55,8 +55,6 @@ def pull_chair():
     return False
 
 def main():
-    logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
-
     total_pull = 0
     state = State.START_UP
     cloud_start = None
@@ -64,17 +62,13 @@ def main():
 
     while True:
         cur_time = datetime.datetime.now().time()
-        
 
-        # if (cur_time < datetime.time(**SUN_ENTERS)):
-        #     logger.info('Too early')
-        #     break
-        # if (cur_time > datetime.time(**SUN_EXITS)):
-        #     logger.info('Day done')
-        #     break
+        if (cur_time > datetime.time(**SUN_EXITS)):
+            logger.info('Day done')
+            break
 
         data_set = []
-        for i in range(READINGS):
+        for _ in range(READINGS):
             while True:
                 sensor_data = read_sensors()
                 if all([ x >= 0 for x in sensor_data.values() ]):
@@ -92,6 +86,8 @@ def main():
         back_triggered = window_triggered and (back_value / window_value > CHAIR_THRESHOLD)
         front_triggered = window_triggered and (front_value / window_value > CHAIR_THRESHOLD)
 
+        logger.debug(f'W:{window_value}-{window_triggered},F:{front_value}-{front_triggered},B:{back_value}-{back_triggered}')
+
         # Make sure chair in sun when starting
         if state == State.START_UP:
             if not (front_triggered or back_triggered):
@@ -107,9 +103,9 @@ def main():
                 logger.info('Sun lost at window')
                 return
             continue
+        cloud_start = None
 
         last_state = state
-        
         if front_triggered and back_triggered:
             state = State.IN_SUN
         elif front_triggered:
@@ -121,7 +117,7 @@ def main():
                 return
             if pull_chair():
                 total_pull += PULL_INTERVAL
-                time.sleep(PULL_INTERVAL/1000.0)
+                time.sleep(PULL_INTERVAL/1000.0 + 1)
         elif back_triggered:
             if state == State.IN_SUN:
                 logger.info('Jumped from IN_SUN to AHEAD')
@@ -134,6 +130,7 @@ def main():
                 logger.info('Sun lost at chair')
                 return
             continue
+        chair_blocked = None
 
         if last_state != state:
             logger.info(f'Went from {last_state.name} to {state.name}')
