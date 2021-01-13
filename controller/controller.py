@@ -43,7 +43,7 @@ class State(Enum):
     MOVING = auto()
     
 def pull_chair():
-    if not DRY_RUN:
+    if DRY_RUN:
         return True
     try:
         r = requests.get(f'http://{CHAIR_CTRL_ADDR}/set?time={PULL_INTERVAL}&dir={PULL_DIR}&speed={PULL_SPEED}')
