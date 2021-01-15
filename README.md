@@ -1,6 +1,6 @@
 # Sun Following Chair for my Cat
 
-See <https://www.robopenguins.com//cat-trolly/> for a detailed write up.
+See <https://www.robopenguins.com/cat-trolly/> for a detailed write up.
 
 This repo consists of:
 
